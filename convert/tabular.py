@@ -1,5 +1,5 @@
 import pandas as pd
-import os
+import os, sys, argparse
 
 
 def unpack(encfile: str, keyfile: str, ukbunpack: str):
@@ -54,3 +54,34 @@ def convert(ukbfile: str, ukbconv: str, formats: list,
         else:
             os.system(f'{ukbconv} {ukbfile} {conv} -o{outname} -e{encoding}')
     return
+
+
+def main(arg):
+    des = 'Converts UKB encoded file into csv, docs, sas, stata, r, and bulk.'
+    parser = argparse.ArgumentParser(prog='tabular_conversion', description=des)
+    parser.add_argument('encfile',metavar='encfile', type=str, help='The encoded file to decode and convert')
+    parser.add_argument('keyfile',metavar='keyfile', type=str, help='The key file supplied by the UKB')
+    parser.add_argument('-p', '--ukbunpack', metavar='ukbunpack', type=str,
+                        help='The ukbunpack utility downloaded from the UKB', default='ukbunpack')
+    parser.add_argument('-c', '--ukbconv',metavar='ukbconv', type=str,
+                        help='The ukbconv utility downloaded from the UKB', default='ukbconv')
+    parser.add_argument('-f', '--format', metavar='format', nargs='*',
+                        help='The formats to convert to (valid: csv, docs, sas, stata, r, lims, bulk, txt). Defaults \''
+                             'to csv, docs, sas, stata, r, bulk',
+                        default=['csv','docs','sas', 'stata', 'r', 'bulk'])
+    parser.add_argument('-o', '--output', metavar='output', type=str,
+                        help='Filename prefix for the output; file extensions are set by the format.',
+                        default='tabular')
+    parser.add_argument('-e', '--encoding',metavar='encoding', type=str,
+                        help='The encoding.ukb file downloaded from the UKB site.', default='encoding.ukb')
+    parser.parse_args(arg)
+    # unpack
+    unpack(encfile=parser.encfile, keyfile=parser.keyfile, ukbunpack=parser.unpack)
+    unpacked_name = parser.encfile + '_ukb'
+    convert(ukbfile=unpacked_name, ukbconv=parser.ukbconv, formats=parser.format, outname=parser.output,
+            encoding=parser.encoding)
+
+
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
