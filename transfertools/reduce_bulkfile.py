@@ -1,5 +1,6 @@
 import os, sys, argparse
 
+
 def reduce_bulkfile(bulk_file: str, out_file: str, data_dir: str = './', field: str = None, verbose: bool = False):
     '''
     This function verifies the data directory and compares it against the input bulk file. Missing data is placed
@@ -22,7 +23,7 @@ def reduce_bulkfile(bulk_file: str, out_file: str, data_dir: str = './', field: 
     None
     '''
     # Get data
-    f = open(bulk_file,'r')
+    f = open(bulk_file, 'r')
     bulk_list = f.read().splitlines()
     f.close()
     spl = [s.split(' ') for s in bulk_list]
@@ -52,6 +53,7 @@ def reduce_bulkfile(bulk_file: str, out_file: str, data_dir: str = './', field: 
     set_fetched = set([sf + '_' + df for sf, df in zip(sub_fetched, datafield_fetched)])
     diff = set_bulk.difference(set_fetched)
 
+    # Write out to file
     f = open(out_file,'w')
     for d in diff:
         sub_ind = d.find('_')
