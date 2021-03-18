@@ -16,19 +16,45 @@
 # For execution without SLURM, modify the following code block to
 
 ###
-module load dcm2niix
-ST=${SLURM_TMPDIR}  # temporary directory
 
-# Expect zipdir bidsdir in exported env
-if [ -z "$zipdir" ]; then
-	echo "zipdir undefined; define it on submission using 'sbatch --export=ALL,zipdir=ZIPDIR,bidsdir=BIDSDIR batch.sbatch'"
-	exit 1
+if [ ! -z ${SLURM_TMPDIR} ]; then
+  ST=${SLURM_TMPDIR}
+  is_slurm=1
+  if [ -z `which dcm2niix`]; then
+    module load dcm2niix
+  fi
+else
+  ST=`mktemp -d`
+  is_slurm=0
 fi
-if [ -z "$bidsdir" ]; then
-	echo "bidsdir undefined; define it on submission using 'sbatch --export=ALL,zipdir=ZIPDIR,bidsdir=BIDSDIR batch.sbatch'"
-	exit 1
-fi
-###
+#ST=${SLURM_TMPDIR}  # temporary directory
+
+helpstr="$(basename "$0") [-h] zipdir bidsdir - Code to extract and fix JSON file for BIDS
+
+where:
+  -h      Show this message.
+  zipdir  Directory containing the DICOM zip files to extract
+  bidsdir Output directory; JSON files will be put in bidsdir/sub-[subjectid]/(etc)
+"
+
+while (( "$#" )); do
+  case "$1" in
+    -h|--help)
+      echo "Usage: ${helpstr}"
+      exit 0
+      ;;
+    -*|--*)
+      echo "Unrecognized option: ${1}"
+      exit 1
+      ;;
+    *)
+      break
+      ;;
+  esac
+done
+
+zipdir="$1"
+bidsdir="$2"
 
 # Get list of zips
 echo "Getting zips from ${zipdir}"
@@ -36,14 +62,21 @@ ziplist=(`printf "%s\n" ${zipdir}/*.zip`)
 zipnum=${#ziplist[@]}
 echo "Found ${zipnum} zipped files"
 
-njob=${SLURM_ARRAY_TASK_COUNT}
-jobind=${SLURM_ARRAY_TASK_ID}
+if [ ${is_slurm} -eq 1 ]; then
+  njob=${SLURM_ARRAY_TASK_COUNT}
+  jobind=${SLURM_ARRAY_TASK_ID}
+else
+  njob=1
+  jobind=0
+fi
 nperjob=$((zipnum/njob+1))
 startind=$((jobind*nperjob))
 endind=$((startind+nperjob))
 
-unziplist=${ziplist[@]:startind:endind}
-echo "Taking ${#unziplist[@]} to check"
+unziplist=(${ziplist[@]:startind:endind})
+echo "startind: ${startind}"
+echo "endind: ${endind}"
+echo "Taking ${#unziplist[@]} files to extract"
 
 # iterate over unziplist
 #  - extract manifest.* - manifest is either .csv or .cvs
@@ -61,7 +94,12 @@ for z in ${unziplist[@]}; do
 	# extract only manifest.*
 	unzip -q -p ${z} "manifest.*" > ${tmpdcm}/manifest.csv
 	# get list of dcm in zipped archive
-	dcmlist=(`unzip -l ${z} | grep .dcm`)
+	filelist=(`unzip -l ${z}`)
+	dcmlist=()
+	for f in ${filelist[@]}; do
+	  dcmlist+=(`echo $f | grep .dcm`)
+	done
+#	dcmlist=(`unzip -l ${z} | grep .dcm`)
 
 	# Column 6 contains the series name; there should only be 3.
 	# Some archives have one which is missing; others have some false starts.
@@ -71,7 +109,7 @@ for z in ${unziplist[@]}; do
 	if [ ${numseries} -eq 3 ] || [ ${numseries} -eq 2 ]; then
 		# Expected number; extract first and last .dcm; dcm2niix BIDS header; determine which is which; convert filename to bids
 		# unzip dcms
-		unzip -q "${z}" "${dcmlist[3]}" "${dcmlist[-1]}" -d "${tmpdcm}/"  # dcmlist[3] because 0-2 are other files
+		unzip -q "${z}" "${dcmlist[0]}" "${dcmlist[-1]}" -d "${tmpdcm}/"
 		# get bids header
 		dcm2niix -b o -o "${tmpdcm}" -f "%s" "${tmpdcm}"
 		# tmpdcm now contains a .json for each series
@@ -81,6 +119,8 @@ for z in ${unziplist[@]}; do
 		for j in ${jsonlist[@]}; do
 		  # Add 'TaskName' to file
 		  json_content=`cat ${j}`
+		  # Remove closing }
+		  json_content=`echo ${json_content} | cut -d"}" -f 1`
 			json_content="${json_content}, \"TaskName\": \"rest\"}"
 			if [ `grep Multiband ${j} | wc -l` -eq 1 ]; then
 				# bold
