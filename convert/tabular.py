@@ -82,6 +82,5 @@ def main(arg):
             encoding=parser.encoding)
 
 
-
 if __name__ == "__main__":
     main(sys.argv[1:])
