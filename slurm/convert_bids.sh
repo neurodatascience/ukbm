@@ -72,7 +72,15 @@ ziptmp=`mktemp`
 for zipname in ${ziplist:startind:nperjob}; do
   echo ${zipname} >> ${ziptmp}
 done
+dirlist=""
+if [ ! -z ${raw_dir} ]; then
+  dirlist+="--raw_dir ${raw_dir}"
+fi
+if [ ! -z ${derivatives_dir} ]; then
+  dirlist+=" --derivatives_dir ${derivatives_dir}"
+fi
+if [ ! -z ${source_dir} ]; then
+  dirlist+=" --source_dir ${source_dir}"
+fi
 
-bpath=${BASH_SOURCE}
-
-python3.8 bids.py --raw_dir ${raw_dir} --derivatives_dir ${derivatives_dir} --source_dir ${source_dir} --zip_filelist ${ziptmp}
+python3.8 ukbm/convert/bids.py ${dirlist} --zip_filelist ${ziptmp}
