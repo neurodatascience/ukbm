@@ -185,9 +185,18 @@ def main():
     parser.add_argument('--raw_dir', help='destination for raw BIDS data')
     parser.add_argument('--source_dir', help='destination for source data')
     parser.add_argument('--derivatives_dir', help='destination for derivative data')
+    parser.add_argument('--zip_filelist', help='text file containing the filepaths of the zip files')
     args = parser.parse_args()
-    bids_from_zip(args.zip_filepath, raw_dir=args.raw_dir, derivatives_dir=args.derivatives_dir,
-                  source_dir=args.source_dir)
+    if(args.zip_filelist is not None):
+        f = open(args.zip_filelist, 'r')
+        zlist = f.read().splitlines()
+        f.close()
+        for z in zlist:
+            bids_from_zip(z, raw_dir=args.raw_dir, derivatives_dir=args.derivatives_dir,
+                          source_dir=args.source_dir)
+    else:
+        bids_from_zip(args.zip_filepath, raw_dir=args.raw_dir, derivatives_dir=args.derivatives_dir,
+                      source_dir=args.source_dir)
     return
 
 
