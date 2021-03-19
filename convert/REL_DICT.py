@@ -25,8 +25,9 @@ tmp_dict = {}
 for k, v in ukbb_bids_dict.items():
     json_key = k.replace('.nii.gz', '.json')
     json_value = v.replace('.nii.gz','.json')
-    ukbb_bids_dict[json_key] = json_value
-
+    tmp_dict[json_key] = json_value
+for k, v in tmp_dict.items():
+    ukbb_bids_dict[k] = v
 
 ukbb_derivs_toplevel = {'T2_FLAIR': 'sub-{subject}/ses-{session}/anat/sub-{subject}_ses-{session}_',
                         'T1': 'sub-{subject}/ses-{session}/anat/sub-{subject}_ses-{session}_',

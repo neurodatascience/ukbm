@@ -13,7 +13,7 @@
 
 # This script uses dcm2niix to get only the .json files, verify the content, and put the files into a BIDS-compliant
 # format (matching ukbm/convert/bids.py).
-# For execution without SLURM, modify the following code block to
+# This code is intended for use with SLURM, but will function outside of it.
 
 ###
 

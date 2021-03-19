@@ -33,7 +33,7 @@ def bids_from_zip(zip_filepath: str, raw_dir: str = None, derivatives_dir: str =
         will be saved in source_dir/sub-XXXX
     Returns
     -------
-
+    None
     '''
     if(raw_dir == derivatives_dir == source_dir == None):
         Warning('Either raw_dir, derivatives_dir, or source_dir must be defined for anything to be done.')
