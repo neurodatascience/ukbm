@@ -65,7 +65,7 @@ ziplist=(`printf "%s\n" ${zipdir}/*.zip`)
 zipnum=${#ziplist[@]}
 echo "Found ${zipnum} zipped files"
 
-nperjob=$((zipnum/njob+1))
+nperjob=$((zipnum/njobs+1))
 startind=$((jobind*nperjob))
 
 ziptmp=`mktemp`
