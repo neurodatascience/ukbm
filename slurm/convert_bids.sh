@@ -74,5 +74,5 @@ for zipname in ${ziplist:startind:nperjob}; do
 done
 
 bpath=${BASH_SOURCE}
-convertpath=${BASH_SOURCE%/*}/../convert/bids.py
-python3.8 ${convertpath} --raw_dir ${raw_dir} --derivatives_dir ${derivatives_dir} --source_dir ${source_dir} --zip_filelist ${ziptmp}
+
+python3.8 bids.py --raw_dir ${raw_dir} --derivatives_dir ${derivatives_dir} --source_dir ${source_dir} --zip_filelist ${ziptmp}
