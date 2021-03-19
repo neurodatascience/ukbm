@@ -181,7 +181,7 @@ def get_bids_derivs_name(subject: str, file_name: str, session: str = '2'):
 
 def main():
     parser = argparse.ArgumentParser('Convert .zip file downloaded from UKBB to BIDS')
-    parser.add_argument('zip_filepath', help='name of the file to convert')
+    parser.add_argument('--zip_filepath', help='name of the file to convert')
     parser.add_argument('--raw_dir', help='destination for raw BIDS data')
     parser.add_argument('--source_dir', help='destination for source data')
     parser.add_argument('--derivatives_dir', help='destination for derivative data')
