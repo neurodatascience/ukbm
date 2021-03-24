@@ -13,7 +13,7 @@ else:
     from REL_DICT import ukbb_source_dict
 
 
-def bids_from_zip(zip_filepath: str, raw_dir: str = None, derivatives_dir: str = None, source_dir: str = None):
+def bids_from_zip(zip_filepath: str, raw_out: str = None, derivatives_out: str = None, source_out: str = None):
     '''
     Converts the zip file of NIfTI images downloaded from the UKBB into BIDS.
     NOTE: At the time this code was written, the derivatives/ extension was not part of the specs. As such, derivatives
@@ -22,21 +22,21 @@ def bids_from_zip(zip_filepath: str, raw_dir: str = None, derivatives_dir: str =
     ----------
     zip_filepath: str
         Path of the downloaded zip file
-    raw_dir : str
-        Optional. Path where to place raw data. Output will be saved in 'raw_dir/sub-XXXX'.
+    raw_out : str
+        Optional. Path where to place raw data. Output will be saved in 'raw_out/sub-XXXX'.
         If undefined, raw data will not be extracted.
-    derivatives_dir : str
-        Optional. Path where to place derivatives (non-raw) data. Output will be saved in 'derivatives_dir/sub-XXX'.
+    derivatives_out : str
+        Optional. Path where to place derivatives (non-raw) data. Output will be saved in 'derivatives_out/sub-XXX'.
         If undefined, derivatives will not be extracted.
-    source_dir : str
+    source_out : str
         Optional. Path where to place source (raw files used to compute a secondary modality e.g. SWI->QSM). Output
-        will be saved in source_dir/sub-XXXX
+        will be saved in source_out/sub-XXXX
     Returns
     -------
     None
     '''
-    if(raw_dir == derivatives_dir == source_dir == None):
-        Warning('Either raw_dir, derivatives_dir, or source_dir must be defined for anything to be done.')
+    if(raw_out == derivatives_out == source_out == None):
+        Warning('Either raw_out, derivatives_out, or source_out must be defined for anything to be done.')
         return
     zip_data = zipfile.ZipFile(zip_filepath)
 
@@ -57,45 +57,45 @@ def bids_from_zip(zip_filepath: str, raw_dir: str = None, derivatives_dir: str =
         raw_bids = get_bids_raw_name(subject=subject, file_name=file, session=session)
         source_bids = get_bids_source_name(subject=subject, file_name=file, session=session)
         deriv_bids = get_bids_derivs_name(subject=subject, file_name=file, session=session)
-        if(raw_bids is not None and raw_dir is not None):
+        if(raw_bids is not None and raw_out is not None):
             # File is raw; put in raw dir
             # zip_data.extract(file, raw_bids)
-            bids_name = join(raw_dir, raw_bids)
+            bids_name = join(raw_out, raw_bids)
             bids_path = bids_name[:bids_name.rfind(os.sep)]
             pathlib.Path(bids_path).mkdir(parents=True, exist_ok=True)
             # Check if on the same device for tmp vs. destination
             dev_tmp = os.stat(unzipped_dir).st_dev
-            dev_dest = os.stat(raw_dir).st_dev
+            dev_dest = os.stat(raw_out).st_dev
             if(dev_tmp == dev_dest):
                 # Same device; just rename
-                os.rename(join(unzipped_dir, file), join(raw_dir, raw_bids))
+                os.rename(join(unzipped_dir, file), join(raw_out, raw_bids))
             else:
                 # Diff device; copy
-                shutil.copyfile(join(unzipped_dir, file), join(raw_dir, raw_bids))
-        elif (source_bids is not None and source_dir is not None):
+                shutil.copyfile(join(unzipped_dir, file), join(raw_out, raw_bids))
+        elif (source_bids is not None and source_out is not None):
             # File is source
-            bids_name = join(source_dir, source_bids)
+            bids_name = join(source_out, source_bids)
             bids_path = bids_name[:bids_name.rfind(os.sep)]
             pathlib.Path(bids_path).mkdir(parents=True, exist_ok=True)
             dev_tmp = os.stat(unzipped_dir).st_dev
-            dev_dest = os.stat(source_dir).st_dev
+            dev_dest = os.stat(source_out).st_dev
             if (dev_tmp == dev_dest):
-                os.rename(join(unzipped_dir, file), join(source_dir, source_bids))
+                os.rename(join(unzipped_dir, file), join(source_out, source_bids))
             else:
-                shutil.copyfile(join(unzipped_dir, file), join(source_dir, source_bids))
-        elif(deriv_bids is not None and derivatives_dir is not None):
+                shutil.copyfile(join(unzipped_dir, file), join(source_out, source_bids))
+        elif(deriv_bids is not None and derivatives_out is not None):
             # NOTE: Derivs must be checked last; since there's no standard for derivatives yet, we're placing
             # everything there as-is, but prepended with the subject ID.
             # File is derivatives
-            bids_name = join(derivatives_dir, deriv_bids)
+            bids_name = join(derivatives_out, deriv_bids)
             bids_path = bids_name[:bids_name.rfind(os.sep)]
             pathlib.Path(bids_path).mkdir(parents=True, exist_ok=True)
             dev_tmp = os.stat(unzipped_dir).st_dev
-            dev_dest = os.stat(derivatives_dir).st_dev
+            dev_dest = os.stat(derivatives_out).st_dev
             if(dev_tmp == dev_dest):
-                os.rename(join(unzipped_dir, file), join(derivatives_dir, deriv_bids))
+                os.rename(join(unzipped_dir, file), join(derivatives_out, deriv_bids))
             else:
-                shutil.copyfile(join(unzipped_dir, file), join(derivatives_dir, deriv_bids))
+                shutil.copyfile(join(unzipped_dir, file), join(derivatives_out, deriv_bids))
         else:
             Warning(f'File {file} was not sorted.')
 
@@ -182,9 +182,9 @@ def get_bids_derivs_name(subject: str, file_name: str, session: str = '2'):
 def main():
     parser = argparse.ArgumentParser('Convert .zip file downloaded from UKBB to BIDS')
     parser.add_argument('--zip_filepath', help='name of the file to convert')
-    parser.add_argument('--raw_dir', help='destination for raw BIDS data')
-    parser.add_argument('--source_dir', help='destination for source data')
-    parser.add_argument('--derivatives_dir', help='destination for derivative data')
+    parser.add_argument('--raw_out', help='destination for raw BIDS data')
+    parser.add_argument('--source_out', help='destination for source data')
+    parser.add_argument('--derivatives_out', help='destination for derivative data')
     parser.add_argument('--zip_filelist', help='text file containing the filepaths of the zip files')
     args = parser.parse_args()
     if(args.zip_filelist is not None):
@@ -192,11 +192,11 @@ def main():
         zlist = f.read().splitlines()
         f.close()
         for z in zlist:
-            bids_from_zip(z, raw_dir=args.raw_dir, derivatives_dir=args.derivatives_dir,
-                          source_dir=args.source_dir)
+            bids_from_zip(z, raw_out=args.raw_out, derivatives_out=args.derivatives_out,
+                          source_out=args.source_out)
     else:
-        bids_from_zip(args.zip_filepath, raw_dir=args.raw_dir, derivatives_dir=args.derivatives_dir,
-                      source_dir=args.source_dir)
+        bids_from_zip(args.zip_filepath, raw_out=args.raw_out, derivatives_out=args.derivatives_out,
+                      source_out=args.source_out)
     return
 
 
