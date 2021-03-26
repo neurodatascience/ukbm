@@ -17,7 +17,7 @@
 
 ###
 
-if [ ! -z ${SLURM_TMPDIR} ]; then
+if [ -n ${SLURM_TMPDIR} ]; then
   ST=${SLURM_TMPDIR}
   is_slurm=1
   if [ -z `which dcm2niix`]; then
@@ -62,6 +62,7 @@ ziplist=(`printf "%s\n" ${zipdir}/*.zip`)
 zipnum=${#ziplist[@]}
 echo "Found ${zipnum} zipped files"
 
+# If in SLURM: split zip list across multiple
 if [ ${is_slurm} -eq 1 ]; then
   njob=${SLURM_ARRAY_TASK_COUNT}
   jobind=${SLURM_ARRAY_TASK_ID}
