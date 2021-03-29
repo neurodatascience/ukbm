@@ -2,7 +2,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=4096M
-#SBATCH --time=0-06:00:00
+#SBATCH --time=1-00:00:00
 #SBATCH -J dwi_fix
 
 # The supplied .bval and .bvec files are tab-delimited instead of space. This swaps tabs for spaces.
@@ -29,7 +29,9 @@ while (( "$#" )); do
 done
 
 bidsdir="${1}"
-
+echo "Checking ${bidsdir}..."
 for bv in `find ${bidsdir} -name "*.bv*" -type f`; do
   sed -i 's/\t/ /g' ${bv}
 done
+
+echo "Done."
