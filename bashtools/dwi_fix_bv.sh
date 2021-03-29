@@ -2,7 +2,8 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=4096M
-#SBATCH --time=0-01:00:00
+#SBATCH --time=0-06:00:00
+#SBATCH -J dwi_fix
 
 # The supplied .bval and .bvec files are tab-delimited instead of space. This swaps tabs for spaces.
 
