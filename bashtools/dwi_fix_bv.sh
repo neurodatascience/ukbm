@@ -14,7 +14,7 @@ where:
   bidsdir   Top-level directry for the BIDS data.
 "
 
-
+pos_args=()
 while (( "$#" )); do
   case "$1" in
     -h|--help)
@@ -24,6 +24,10 @@ while (( "$#" )); do
     -*|--*)
       echo "Unrecognized option: $1"
       exit 1
+      ;;
+    *)
+      pos_args+=("$1")
+      shift 1
       ;;
   esac
 done
