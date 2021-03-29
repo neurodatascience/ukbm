@@ -69,7 +69,7 @@ nperjob=$((zipnum/njobs+1))
 startind=$((jobind*nperjob))
 
 ziptmp=`mktemp`
-for zipname in ${ziplist:startind:nperjob}; do
+for zipname in ${ziplist[@]:startind:nperjob}; do
   echo ${zipname} >> ${ziptmp}
 done
 dirlist=""
