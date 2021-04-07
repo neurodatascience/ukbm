@@ -2,12 +2,12 @@
 
 # This code converts UKB DWI dicomes into BIDS
 
-helpstr="$(basename "$0") [-h] zipdir bidsdir - Code to convert UKB diffusion DICOMs into BIDS.
+helpstr="$(basename "$0") [-h] zipfilelist bidsdir - Code to convert UKB diffusion DICOMs into BIDS.
 
 where:
-  -h      Show this message.
-  zipdir  Directory containing the DICOM zip files to extract
-  bidsdir Output directory.
+  -h            Show this message.
+  zipfilelist   Text file with newline-delimited list of zipped DWI DICOMs.
+  bidsdir       Output directory.
 "
 
 
@@ -85,6 +85,7 @@ while read -r fil; do
         # check device for mv vs. cp
         dev_source=`df ${conv} | awk 'FNR == 2 { print $1 }'`
         if [ ${dev_source} = ${dev_dest} ]; then
+          # this is not typically needed since 'mv' defaults to 'cp' across filesystems, but I've had issues with this before
           mv ${conv} ${bids_dir}/${bids_pref}.${suff}
         else
           cp ${conv} ${bids_dir}/${bids_pref}.${suff}

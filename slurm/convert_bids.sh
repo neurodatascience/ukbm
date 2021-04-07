@@ -48,6 +48,7 @@ zipdir="${1}"
 
 if [ -z ${zipdir} ]; then
   >&2 echo "The directory containing the NIfTI files must be specified"
+  exit 1
 fi
 
 if [ -z ${raw_out} ] && [ -z ${derivatives_out} ] && [ -z ${source_out} ]; then
@@ -83,4 +84,5 @@ if [ ! -z ${source_out} ]; then
   dirlist+=" --source_out ${source_out}"
 fi
 
+# TODO: fix this pathing
 python3.8 ukbm/convert/bids.py ${dirlist} --zip_filelist ${ziptmp}
