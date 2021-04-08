@@ -2,10 +2,11 @@
 
 # This code converts UKB DWI dicomes into BIDS
 
-helpstr="$(basename "$0") [-h] zipfilelist bidsdir - Code to convert UKB diffusion DICOMs into BIDS.
+helpstr="$(basename "$0") [-h] [-s skip_flag] zipfilelist bidsdir - Code to convert UKB diffusion DICOMs into BIDS.
 
 where:
   -h            Show this message.
+  -s            Whether to skip a subject if present in output directory (0=don't skip, 1=skip). Defaults to 1.
   zipfilelist   Text file with newline-delimited list of zipped DWI DICOMs.
   bidsdir       Output directory.
 "
@@ -24,11 +25,16 @@ else
 fi
 
 pos_args=()
+skip_flag=1
 while (( "$#" )); do
   case "$1" in
     -h|--help)
       echo "Usage: ${helpstr}"
       exit 0
+      ;;
+    -s|--skip)
+      skip_flag="${2}"
+      shift 2
       ;;
     -*|--*)
       echo "Unrecognized option: ${1}"
@@ -54,6 +60,10 @@ while read -r fil; do
   session=${filesplit[2]}
 
   outdir="${ST}/${subid}_${session}"
+  if [ -d ${outdir} ] && [ ${skip_flag} -eq 1 ]; then
+    echo "Skipping ${zipname}"
+    continue
+  fi
   mkdir ${outdir}
   # unzip dcm into tmp
   unzip -q -d ${outdir} ${fil}
