@@ -90,6 +90,7 @@ while read -r fil; do
         else
           cp ${conv} ${bids_dir}/${bids_pref}.${suff}
         fi
+	rm -r ${conv}
       done
     fi
   done
