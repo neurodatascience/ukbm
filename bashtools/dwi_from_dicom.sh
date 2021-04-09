@@ -60,10 +60,14 @@ while read -r fil; do
   session=${filesplit[2]}
 
   outdir="${ST}/${subid}_${session}"
-  if [ -d ${outdir} ] && [ ${skip_flag} -eq 1 ]; then
+  bids_dir="${save_dir}/sub-${subid}/ses-${session}/dwi/"
+
+
+  if [ -d ${bids_dir} ] && [ ${skip_flag} -eq 1 ]; then
     echo "Skipping ${zipname}"
     continue
   fi
+  mkdir -p ${bids_dir}
   mkdir ${outdir}
   # unzip dcm into tmp
   unzip -q -d ${outdir} ${fil}
@@ -82,8 +86,7 @@ while read -r fil; do
 #      echo "seqsplit: ${seqsplit[@]}"
 #      echo "seqsplit[1]: ${seqsplit[1]}"
       acq_dir=${seqsplit[1]}
-      bids_dir="${save_dir}/sub-${subid}/ses-${session}/dwi/"
-      mkdir -p ${bids_dir}
+
       bids_pref="sub-${subid}_ses-${session}_acq-${acq_dir}_dwi"
       dev_dest=`df ${bids_dir} | awk 'FNR == 2 { print $1 }'`
       for conv in $(printf "%s\n" "${conv_base}*"); do
