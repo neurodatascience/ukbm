@@ -65,5 +65,5 @@ for squash in "${squash_list[@]}"; do
 done
 # subject_list singularity_img output_dir topdir squashfs_0
 for squash in "${squash_to_fix[@]}"; do
-  sbatch ${script_dir}/resquash.sh  ${subject_list} ${singularity_img} ${output} ${squash_dir} ${squash}
+  sbatch --account=${account} ${script_dir}/resquash.sh  ${subject_list} ${singularity_img} ${output} ${squash_dir} ${squash}
 done
