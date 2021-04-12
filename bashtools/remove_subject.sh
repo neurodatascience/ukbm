@@ -57,7 +57,7 @@ squash_to_fix=()
 for squash in "${squash_list[@]}"; do
   echo "Checking ${squash}..."
   buf=`singularity exec -B ${script_dir}:/fix_scripts/ --overlay "${squash}":ro "${singularity_img}" bash /fix_scripts/check_subject.sh ${subject_list}`
-  if [ ${buf} -eq 1 ]; then
+  if [ "${buf}" -eq 1 ]; then
     squash_to_fix+=(${squash})
     echo "Needs fixing: ${squash}"
     continue
