@@ -47,17 +47,9 @@ done
 
 subject_list=${posargs[0]}
 singularity_img=${posargs[1]}
-squash_list=${posargs[@]:2}
+squash_list=(${posargs[@]:2})
 
-if [ -n "${SLURM_JOB_ID}" ]; then
-  ST=${SLURM_TMPDIR}
-  is_slurm=1
-  module load singularity/3.6
-else
-  ST=`mktemp -d`
-  is_slurm=0
-fi
-
+# Get script location
 script_dir=`readlink -f $0`
 script_dir=`dirname ${script_dir}`
 # Mount each SquashFS image; check; create list of images to be rebuilt
