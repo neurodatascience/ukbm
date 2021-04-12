@@ -53,7 +53,7 @@ save_dir=${pos_args[1]}
 
 # Make nii staging directory
 nii_out=${save_dir}/.nii/
-mkdir -p ${nii_out}
+
 
 while read -r fil; do
   zipname=`basename $fil`
@@ -63,10 +63,11 @@ while read -r fil; do
   datafield=${filesplit[1]}
   session=${filesplit[2]}
 
+  # output/staging directories
   outdir="${ST}/${subid}_${session}"
   bids_dir="${save_dir}/sub-${subid}/ses-${session}/dwi/"
   nii_tmp="${nii_out}/sub-${subid}_ses-${session}/"
-
+  mkdir -p nii_tmp
 
   if [ -d ${bids_dir} ] && [ ${skip_flag} -eq 1 ]; then
     echo "Skipping ${zipname}"
@@ -74,6 +75,7 @@ while read -r fil; do
   fi
   mkdir -p ${bids_dir}
   mkdir ${outdir}
+  mkdir -p ${nii_out}
   # unzip dcm into tmp
   unzip -q -d ${outdir} ${fil}
   # convert to nii
@@ -86,17 +88,12 @@ while read -r fil; do
     if [ -f ${bvec} ]; then
       # sequence has both bvec, bval. Convert!
       conv_base=${bv%.bval}
-#      echo "base: ${conv_base}"
       seqbase=`basename ${conv_base}`
       seqsplit=(${seqbase//_/ })
-#      echo "seqsplit: ${seqsplit[@]}"
-#      echo "seqsplit[1]: ${seqsplit[1]}"
       acq_dir=${seqsplit[1]}
 
       bids_pref="sub-${subid}_ses-${session}_acq-${acq_dir}_dwi"
       for conv in $(printf "%s\n" "${conv_base}*"); do
-#        echo "conv: ${conv}"
-#        echo "dest: ${bids_dir}"
         # get suffix
         convbasename=`basename ${conv}`
         suff=${convbasename#*.}
@@ -106,5 +103,5 @@ while read -r fil; do
       done
     fi
   done
-  rm -r ${nii_tmp}
+  rm -r ${nii_tmp} &
 done < ${file_list}
