@@ -3,7 +3,6 @@
 #SBATCH --ntasks=1
 #SBATCH --mem-per-cpu=8G
 #SBATCH --time=0-12:00:00
-#SBATCH --array=0
 
 helpstr="$(basename "$0") [-h] subject_list singularity_img output_dir topdir squashfs_0 [squashfs_1 ...] - Re-squashes the input SquashFS files without the subjects listed
 

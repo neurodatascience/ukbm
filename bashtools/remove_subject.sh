@@ -9,10 +9,11 @@ where:
   -a ACCOUNT                    Account to use for SLURM accounting.
   subject_list                  Text file with subject directories to remove.
   singularity_img               Singularity image to use to mount SquashFS files.
-  squashfs                     SquashFS files to mount, check, and resquash without the subjects to be removed.
+  squashfs                      SquashFS files to mount, check, and resquash without the subjects to be removed.
 "
 
 squash_dir="/data/"
+output="./"
 posargs=()
 # Arg parse
 while (( "$#" )); do
@@ -48,7 +49,7 @@ subject_list=${posargs[0]}
 singularity_img=${posargs[1]}
 squash_list=${posargs[@]:2}
 
-if [ -n ${SLURM_JOB_ID} ]; then
+if [ -n "${SLURM_JOB_ID}" ]; then
   ST=${SLURM_TMPDIR}
   is_slurm=1
   module load singularity/3.6
@@ -58,12 +59,19 @@ else
 fi
 
 script_dir=`readlink -f $0`
+script_dir=`dirname ${script_dir}`
 # Mount each SquashFS image; check; create list of images to be rebuilt
 squash_to_fix=()
 for squash in "${squash_list[@]}"; do
-  buf=`singularity exec -B ${script_dir}:/fix_scripts/ --overlay "${squash}":ro "${singularity_img}" bash /fix_scripts/check_subject.sh`
+  echo "Checking ${squash}..."
+  buf=`singularity exec -B ${script_dir}:/fix_scripts/ --overlay "${squash}":ro "${singularity_img}" bash /fix_scripts/check_subject.sh ${subject_list}`
   if [ ${buf} -eq 1 ]; then
     squash_to_fix+=(${squash})
+    echo "Needs fixing: ${squash}"
+    continue
   fi
 done
-
+# subject_list singularity_img output_dir topdir squashfs_0
+for squash in "${squash_to_fix[@]}"; do
+  sbatch ${script_dir}/resquash.sh  ${subject_list} ${singularity_img} ${output} ${squash_dir} ${squash}
+done
