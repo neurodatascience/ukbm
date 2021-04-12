@@ -67,7 +67,7 @@ while read -r fil; do
   outdir="${ST}/${subid}_${session}"
   bids_dir="${save_dir}/sub-${subid}/ses-${session}/dwi/"
   nii_tmp="${nii_out}/sub-${subid}_ses-${session}/"
-  mkdir -p nii_tmp
+
 
   if [ -d ${bids_dir} ] && [ ${skip_flag} -eq 1 ]; then
     echo "Skipping ${zipname}"
@@ -76,6 +76,7 @@ while read -r fil; do
   mkdir -p ${bids_dir}
   mkdir ${outdir}
   mkdir -p ${nii_out}
+  mkdir -p ${nii_tmp}
   # unzip dcm into tmp
   unzip -q -d ${outdir} ${fil}
   # convert to nii
