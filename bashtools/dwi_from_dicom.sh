@@ -51,6 +51,10 @@ done
 file_list=${pos_args[0]}
 save_dir=${pos_args[1]}
 
+# Make nii staging directory
+nii_out=${save_dir}/.nii/
+mkdir -p ${nii_out}
+
 while read -r fil; do
   zipname=`basename $fil`
   filename=`echo ${zipname%.zip}`
@@ -61,7 +65,7 @@ while read -r fil; do
 
   outdir="${ST}/${subid}_${session}"
   bids_dir="${save_dir}/sub-${subid}/ses-${session}/dwi/"
-  bids_tmp=${save_dir}/.tmp/
+  nii_tmp="${nii_out}/sub-${subid}_ses-${session}/"
 
 
   if [ -d ${bids_dir} ] && [ ${skip_flag} -eq 1 ]; then
@@ -73,11 +77,11 @@ while read -r fil; do
   # unzip dcm into tmp
   unzip -q -d ${outdir} ${fil}
   # convert to nii
-  dcm2niix -b y -f '%p_%s' -z y -o ${bids_tmp} ${outdir}
+  dcm2niix -b y -f '%p_%s' -z y -o ${nii_tmp} ${outdir}
   rm -r ${outdir} &
 
   # only take files which have bvec + bval
-  for bv in `printf "%s\n" "${bids_tmp}/*.bval"`; do
+  for bv in `printf "%s\n" "${nii_tmp}/*.bval"`; do
     bvec=${bv%.bval}.bvec
     if [ -f ${bvec} ]; then
       # sequence has both bvec, bval. Convert!
@@ -90,7 +94,6 @@ while read -r fil; do
       acq_dir=${seqsplit[1]}
 
       bids_pref="sub-${subid}_ses-${session}_acq-${acq_dir}_dwi"
-      dev_dest=`df ${bids_dir} | awk 'FNR == 2 { print $1 }'`
       for conv in $(printf "%s\n" "${conv_base}*"); do
 #        echo "conv: ${conv}"
 #        echo "dest: ${bids_dir}"
@@ -98,15 +101,10 @@ while read -r fil; do
         convbasename=`basename ${conv}`
         suff=${convbasename#*.}
         # check device for mv vs. cp
-        dev_source=`df ${conv} | awk 'FNR == 2 { print $1 }'`
-        if [ ${dev_source} = ${dev_dest} ]; then
-          # this is not typically needed since 'mv' defaults to 'cp' across filesystems, but I've had issues with this before
-          mv ${conv} ${bids_dir}/${bids_pref}.${suff}
-        else
-          cp ${conv} ${bids_dir}/${bids_pref}.${suff}
-        fi
+        mv ${conv} ${bids_dir}/${bids_pref}.${suff}
+
       done
     fi
   done
-  rm -r ${bids_tmp}
+  rm -r ${nii_tmp}
 done < ${file_list}
