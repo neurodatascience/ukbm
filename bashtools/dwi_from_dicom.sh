@@ -61,6 +61,7 @@ while read -r fil; do
 
   outdir="${ST}/${subid}_${session}"
   bids_dir="${save_dir}/sub-${subid}/ses-${session}/dwi/"
+  bids_tmp=${save_dir}/.tmp/
 
 
   if [ -d ${bids_dir} ] && [ ${skip_flag} -eq 1 ]; then
@@ -72,10 +73,11 @@ while read -r fil; do
   # unzip dcm into tmp
   unzip -q -d ${outdir} ${fil}
   # convert to nii
-  dcm2niix -b y -f '%p_%s' -z y -o ${outdir} ${outdir}
+  dcm2niix -b y -f '%p_%s' -z y -o ${bids_tmp} ${outdir}
+  rm -r ${outdir} &
 
   # only take files which have bvec + bval
-  for bv in `printf "%s\n" "${outdir}/*.bval"`; do
+  for bv in `printf "%s\n" "${bids_tmp}/*.bval"`; do
     bvec=${bv%.bval}.bvec
     if [ -f ${bvec} ]; then
       # sequence has both bvec, bval. Convert!
@@ -103,8 +105,8 @@ while read -r fil; do
         else
           cp ${conv} ${bids_dir}/${bids_pref}.${suff}
         fi
-	rm -r ${conv}
       done
     fi
   done
+  rm -r ${bids_tmp}
 done < ${file_list}
