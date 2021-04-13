@@ -52,11 +52,15 @@ squash_list=(${posargs[@]:2})
 # Get script location
 script_dir=`readlink -f $0`
 script_dir=`dirname ${script_dir}`
+slr=`readlink -f ${subject_list}`
+subject_list_dir=`dirname ${slr}`
 # Mount each SquashFS image; check; create list of images to be rebuilt
 squash_to_fix=()
 for squash in "${squash_list[@]}"; do
   echo "Checking ${squash}..."
-  buf=`singularity exec -B ${script_dir}:/fix_scripts/ --overlay "${squash}":ro "${singularity_img}" bash /fix_scripts/check_subject.sh ${subject_list}`
+  buf=`singularity exec -B ${script_dir}:/fix_scripts/ -B ${subject_list_dir}:/.subjects/ --overlay "${squash}":ro "${singularity_img}" bash /fix_scripts/check_subject.sh /.subjects/${subject_list}`
+  echo "Checked ${squash}"
+  echo "buf: ${buf}"
   if [ "${buf}" -eq 1 ]; then
     squash_to_fix+=(${squash})
     echo "Needs fixing: ${squash}"

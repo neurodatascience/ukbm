@@ -49,6 +49,6 @@ fi
 module load singularity/3.6
 exclude_filename=`basename ${exclude_file}`
 exclude_dir=`dirname ${exclude_file}`
-squash_command="mksquashfs ${topdir} ${output_name} -ef /.exclude/${exclude_filename} -no-progress -noI -noD -noX -keep-as-directory -all-root -processors 1 -no-duplicates -fstime 1601265600"
+squash_command="mksquashfs ${topdir} /.out/${output_name} -ef /.exclude/${exclude_filename} -no-progress -noI -noD -noX -keep-as-directory -all-root -processors 1 -no-duplicates -fstime 1601265600"
 
-singularity exec --overlay ${squash_file}:ro -B ${exclude_dir}:/.exclude/ -B ${output_name}:${output_name} ${singularity_image} ${squash_command}
+singularity exec --overlay ${squash_file}:ro -B ${exclude_dir}:/.exclude/ -B ${output_dir}:/.out/ ${singularity_image} ${squash_command}
