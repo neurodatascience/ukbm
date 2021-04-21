@@ -11,9 +11,9 @@ Squashes the specified directory. The number of output SquashFS files is dictate
 where:
   -h                            Show this message.
   -d, --depth DEPTH		Depth of directory to use for splitting. Default 0. E.g. /neurohub/ukbb/imaging/sub-* would require -d 3.
-  -f, --format FORMAT		Formatting string to use for naming output. It should change with ${SLURM_ARRAY_TASK_ID} to prevent collisions. Default: 'neurohub_ukbb_data_${SLURM_ARRAY_TASK_ID}'. Recommended: 'neurohub_ukbb_MODALITY_sesSESSION_${SLURM_ARRAY_TASK_ID}_STRUCTURE.squashfs'.
+  -f, --format FORMAT		Formatting string to use for naming output. It should change with '${SLURM_ARRAY_TASK_ID}' to prevent collisions. Default: 'neurohub_ukbb_data_${SLURM_ARRAY_TASK_ID}'. Recommended: 'neurohub_ukbb_MODALITY_sesSESSION_${SLURM_ARRAY_TASK_ID}_STRUCTURE.squashfs'.
 				NOTE: input should be specified using single quotes to avoid variable expansion.
-  -n, --numim NUMIM		Number of images that would be produced. Default to ${SLURM_ARRAY_TASK_COUNT}. Only used when a subset needs to be re-squashed. A job that was previously-submitted with --array=0-3 would produce 4 images. If you need to re-squash image 2, you would use: sbatch --array=2 [...] $(basename $0) -n 4 [...].
+  -n, --numim NUMIM		Number of images that would be produced. Default to '${SLURM_ARRAY_TASK_COUNT}'. Only used when a subset needs to be re-squashed. A job that was previously-submitted with --array=0-3 would produce 4 images. If you need to re-squash image 2, you would use: sbatch --array=2 [...] $(basename $0) -n 4 [...].
   --dry				If set, will not squash but will instead print the list of files that would be excluded.
   directory_to_squash		Directory containing the data that needs to be squashed.
 

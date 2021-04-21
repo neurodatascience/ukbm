@@ -24,6 +24,10 @@ njob=10
 pos_args=()
 while (( "$#" )); do
         case "$1" in
+		-h|--help)
+		  echo "${helpstr}"
+		  exit 0
+		  ;;
 		-n|--numjobs)
 		  # number of jobs downloading the data (used to determine how much each should download)
 		  njob="${2}"

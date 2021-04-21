@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-helpstr="$(basename "$0") [-h] subject_list
+helpstr="$(basename "$0") [-h] subject_list  - Check whether any subject directory is present; used to check whether a subject is in a SquashFS image
 
 where:
   -h                            Show this message.
