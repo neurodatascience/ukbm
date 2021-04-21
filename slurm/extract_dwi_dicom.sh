@@ -66,5 +66,6 @@ for z in ${ziplist[@]:start_ind:zipspertask}; do
 done
 #end_ind=$((stard_ind+zipspertask-1))
 
-# TODO: fix this pathing
-bash ukbm/bashtools/dwi_from_dicom.sh -s ${skip_flag} ${tmptxt} ${bidsdir}
+dirpath=`dirname ${0}`
+
+bash ${dirpath}/dwi_from_dicom.sh -s ${skip_flag} ${tmptxt} ${bidsdir}
