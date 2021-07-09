@@ -109,7 +109,7 @@ chromlist+=(X Y XY MT)
 
 job_ind=0
 echo "Downloading!"
-if [ ! -z ${blocklist} ]; then
+if [ ! -z "${blocklist}" ]; then
 	# Go through each line in blocklist to get chrom-block pair
 	# blocklist specified; gfetch & blockfile parse
 	echo "Parsing blockfile ${blockfile}!"
@@ -117,7 +117,7 @@ if [ ! -z ${blocklist} ]; then
 		barr=(${binfo})
 		chrom=${barr[1]}
 		block=${barr[2]}
-		if [ ${skip} -eq 1 ]; then
+		if [ "${skipflag}" -eq 1 ]; then
 			if [ -f "ukb${field}_c${chrom}_b${block}_v1.vcf.gz" ]; then
 				echo "Found file; skipping: ukb${field}_c${chrom}_b${block}_v1.vcf.gz"
 				continue
@@ -130,7 +130,7 @@ if [ ! -z ${blocklist} ]; then
 			job_ind=0
 		fi
 	done < ${blocklist}
-elif [ ! -z ${bulkfile} ]; then
+elif [ ! -z "${bulkfile}" ]; then
 	# bulkfile is specified; use ukbfetch
 	echo "Parsing bulkfile ${bulkfile}!"
 	maxfiles=1000
@@ -147,7 +147,7 @@ elif [ ! -z ${bulkfile} ]; then
 			job_ind=0
 		fi
 	done
-elif [ -z ${blocklist} ]; then
+elif [ -z "${blocklist}" ]; then
 	echo "Downloading genetics data!"
 	for chrom in ${chromlist[@]}; do
 		dload ${chrom} &
