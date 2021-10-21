@@ -100,9 +100,9 @@ python bids.py --zip_filelist datalist.txt --raw_out t1/raw/
 For clusters supporting [SLURM](https://slurm.schedmd.com/documentation.html), some batch submission scripts are provided for deploying to multiple workers. Some modification may be required to fit your specific server (e.g., removing 'module' and replacing it with the corresponding structure). The code was developed for [Compute Canada](https://docs.computecanada.ca/wiki/Compute_Canada_Documentation) clusters, which uses [Lmod](https://www.tacc.utexas.edu/research-development/tacc-projects/lmod) to manage the software environment; if your cluster uses the same tools, they should work as described here.  
   
 ### Conversion to BIDS  
-Distributed conversion to BIDS can be done using `slurm/convert_bids.py`, which simply needs to be pointed to a directory of .zip files. Its interface is similar to `convert/bids.py`, but instead assumes that you want to convert everything in a particular directory.  
+Distributed conversion to BIDS can be done using `slurm/convert_bids.sh`, which simply needs to be pointed to a directory of .zip files. Its interface is similar to `convert/bids.py`, but instead assumes that you want to convert everything in a particular directory.  
 ````bash
-sbatch --account=ACCOUNT bids.py [--raw_out DIR] [--source_out DIR] [--derivatives_out DIR] zipdir
+sbatch --account=ACCOUNT convert_bids.sh [--raw_out DIR] [--source_out DIR] [--derivatives_out DIR] zipdir
 ````
 The inputs are the same as with `bids.py`. `zipdir` is simply the path to the directory containing the .zip files to be converted to BIDS. The default SBATCH settings use an array of 4 workers; you can increase the number of workers, but using more than 4 workers can cause issues when reading/writing from the same disk spaces. We recommend keeping it at 4 workers and waiting a little longer.  
   
