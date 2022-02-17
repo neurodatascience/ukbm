@@ -50,13 +50,27 @@ cp ${WD_DIR}/license.txt ${SINGULARITYENV_FS_LICENSE}
 
 # Designate a templateflow bind-mount point
 export SINGULARITYENV_TEMPLATEFLOW_HOME="/templateflow"
+
+# SquashFS list
+UKBB_SQUASHFS="
+ neurohub_ukbb_t1_ses2_0_bids.squashfs
+ neurohub_ukbb_participants.squashfs
+ neurohub_ukbb_t1_ses2_0_jsonpatch.squashfs
+ "
+
+UKBB_SQUASHFS_DIR=/project/6008063/neurohub/ukbb/imaging
+UKBB_OVERLAYS=$(echo "" $UKBB_SQUASHFS | sed -e "s# # --overlay $UKBB_SQUASHFS_DIR/#g")
+echo "overlays:"
+echo $UKBB_OVERLAYS
+
+# Singularity CMD 
 SINGULARITY_CMD="singularity run \
---overlay /project/rpp-aevans-ab/neurohub/ukbb/imaging/neurohub_ukbb_t1_ses2_0_bids.squashfs \
 -B ${FMRIPREP_HOME}:/home/fmriprep --home /home/fmriprep --cleanenv \
 -B ${DERIVS_DIR}:/output \
 -B ${TEMPLATEFLOW_HOST_HOME}:${SINGULARITYENV_TEMPLATEFLOW_HOME} \
 -B ${WD_DIR}:/work \
--B ${LOCAL_FREESURFER_DIR}:/fsdir ${CON_IMG}"
+-B ${LOCAL_FREESURFER_DIR}:/fsdir ${UKBB_OVERLAYS} \
+ ${CON_IMG}"
 
 # Remove IsRunning files from FreeSurfer
 # find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
@@ -66,9 +80,8 @@ cmd="${SINGULARITY_CMD} $BIDS_DIR /output participant --participant-label $SUB_I
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
---cifti-out 91k --return-all-components --anat-only \
---write-graph --skip_bids_validation --notrack --resource-monitor \
---anat-only"
+--return-all-components --anat-only -v \
+--write-graph  --notrack --resource-monitor"
 #--bids-filter-file ${BIDS_FILTER} --anat-only --cifti-out 91k"
 
 # Setup done, run the command
@@ -79,8 +92,7 @@ eval $cmd
 exitcode=$?
 
 # Output results to a table
-echo "$SUB_ID    ${SLURM_ARRAY_TASK_ID}    $exitcode" \
-      >> ${LOG_DIR}/${SLURM_JOB_NAME}_${SLURM_ARRAY_JOB_ID}.tsv
+echo "$SUB_ID    ${SLURM_ARRAY_TASK_ID}    $exitcode"
 echo Finished tasks ${SLURM_ARRAY_TASK_ID} with exit code $exitcode
 rm -rf ${FMRIPREP_HOME}
 exit $exitcode
