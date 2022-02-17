@@ -33,15 +33,7 @@ FMRIPREP_HOST_CACHE=$FMRIPREP_HOME/.cache/fmriprep
 mkdir -p ${FMRIPREP_HOST_CACHE}
 
 # CHECK IF YOU HAVE TEMPLATEFLOW
-TEMPLATEFLOW_HOST_HOME=$HOME/scratch/templateflow
-if [ -d ${TEMPLATEFLOW_HOST_HOME} ];then
-	echo "Templateflow dir already exists!"
-else
-    echo "Downloading templates"
-	mkdir -p ${TEMPLATEFLOW_HOST_HOME}
-	python -c "from templateflow import api; api.get('MNI152NLin2009cAsym')"
-	python -c "from templateflow import api; api.get('OASIS30ANTs')"
-fi
+TEMPLATEFLOW_HOST_HOME="/home/nikhil/scratch/templateflow"
 
 # Make sure FS_LICENSE is defined in the container.
 mkdir -p $FMRIPREP_HOME/.freesurfer
@@ -63,20 +55,25 @@ UKBB_OVERLAYS=$(echo "" $UKBB_SQUASHFS | sed -e "s# # --overlay $UKBB_SQUASHFS_D
 echo "overlays:"
 echo $UKBB_OVERLAYS
 
+data_dir=$BIDS_DIR
+
+echo "data dir: $data_dir"
+
 # Singularity CMD 
 SINGULARITY_CMD="singularity run \
+${UKBB_OVERLAYS} \
 -B ${FMRIPREP_HOME}:/home/fmriprep --home /home/fmriprep --cleanenv \
 -B ${DERIVS_DIR}:/output \
 -B ${TEMPLATEFLOW_HOST_HOME}:${SINGULARITYENV_TEMPLATEFLOW_HOME} \
 -B ${WD_DIR}:/work \
--B ${LOCAL_FREESURFER_DIR}:/fsdir ${UKBB_OVERLAYS} \
+-B ${LOCAL_FREESURFER_DIR}:/fsdir \
  ${CON_IMG}"
 
 # Remove IsRunning files from FreeSurfer
 # find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line
-cmd="${SINGULARITY_CMD} $BIDS_DIR /output participant --participant-label $SUB_ID \
+cmd="${SINGULARITY_CMD} ${data_dir} /output participant --participant-label $SUB_ID \
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
