@@ -12,12 +12,12 @@
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 
-#SBATCH --array=1-4
+#SBATCH --array=1-95
 
 WD_DIR=$1
 
 echo "Starting task $SLURM_ARRAY_TASK_ID"
-SUB_ID=$(sed -n "${SLURM_ARRAY_TASK_ID}p" ../metadata/ukbb_long_subject_list_100.txt)
+SUB_ID=$(sed -n "${SLURM_ARRAY_TASK_ID}p" ../metadata/ukbb_subject_ids_run1.txt)
 echo "Subject ID: ${SUB_ID}"
 
 module load singularity/3.8
