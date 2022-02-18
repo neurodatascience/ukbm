@@ -12,7 +12,7 @@
 #SBATCH --mail-type=ALL
 # ------------------------------------------
 
-#SBATCH --array=1-10
+#SBATCH --array=1-4
 
 WD_DIR=$1
 
@@ -21,4 +21,4 @@ SUB_ID=$(sed -n "${SLURM_ARRAY_TASK_ID}p" ../metadata/ukbb_long_subject_list_100
 echo "Subject ID: ${SUB_ID}"
 
 module load singularity/3.8
-./fmriprep_anat_sub_ukb.sh ${WD_DIR} ${SUB_ID}
+./fmriprep_anat_sub_regular.sh ${WD_DIR} ${SUB_ID}

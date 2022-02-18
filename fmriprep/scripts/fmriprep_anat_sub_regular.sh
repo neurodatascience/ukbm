@@ -11,8 +11,9 @@ fi
 WD_DIR=$1
 SUB_ID=$2
 
-BIDS_DIR="/neurohub/ukbb/imaging/"
-CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_20.2.7.sif"
+BIDS_DIR="/scratch/nikhil/ukbb_processing/fmriprep/test_BIDS_DIR"
+CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_v20.2.0.simg"
+#CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_20.2.7.sif"
 DERIVS_DIR=${WD_DIR}/output
 
 LOG_FILE=${WD_DIR}_fmriprep_anat.log
@@ -43,25 +44,9 @@ cp ${WD_DIR}/license.txt ${SINGULARITYENV_FS_LICENSE}
 # Designate a templateflow bind-mount point
 export SINGULARITYENV_TEMPLATEFLOW_HOME="/templateflow"
 
-# SquashFS list
-UKBB_SQUASHFS="
- neurohub_ukbb_t1_ses2_0_bids.squashfs
- neurohub_ukbb_participants.squashfs
- neurohub_ukbb_t1_ses2_0_jsonpatch.squashfs
- "
-
-UKBB_SQUASHFS_DIR=/project/6008063/neurohub/ukbb/imaging
-UKBB_OVERLAYS=$(echo "" $UKBB_SQUASHFS | sed -e "s# # --overlay $UKBB_SQUASHFS_DIR/#g")
-echo "overlays:"
-echo $UKBB_OVERLAYS
-
-data_dir=$BIDS_DIR
-
-echo "data dir: $data_dir"
-
 # Singularity CMD 
 SINGULARITY_CMD="singularity run \
-${UKBB_OVERLAYS} \
+-B ${BIDS_DIR}:/data_dir \
 -B ${FMRIPREP_HOME}:/home/fmriprep --home /home/fmriprep --cleanenv \
 -B ${DERIVS_DIR}:/output \
 -B ${TEMPLATEFLOW_HOST_HOME}:${SINGULARITYENV_TEMPLATEFLOW_HOME} \
@@ -73,9 +58,10 @@ ${UKBB_OVERLAYS} \
 # find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line
-cmd="${SINGULARITY_CMD} ${data_dir} /output participant --participant-label $SUB_ID \
+cmd="${SINGULARITY_CMD} /data_dir /output participant --participant-label $SUB_ID \
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
+--skip_bids_validation \
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
 --return-all-components --anat-only -v \
 --write-graph  --notrack --resource-monitor"
@@ -83,8 +69,8 @@ cmd="${SINGULARITY_CMD} ${data_dir} /output participant --participant-label $SUB
 
 # Setup done, run the command
 #echo Running task ${SLURM_ARRAY_TASK_ID}
-echo Commandline: $cmd
 unset PYTHONPATH
+echo Commandline: $cmd
 eval $cmd
 exitcode=$?
 

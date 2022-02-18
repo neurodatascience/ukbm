@@ -5,7 +5,7 @@
 # Script to extract subset of data from squashFS into regular FS
 
 if [ "$#" -ne 3 ]; then
-  echo "Please provide squashFS, output_dir and list of subjects in a text file"
+  echo "Please provide squashFS, output_dir and list of subjects from /fmriprep/metadata dir"
   exit 1
 fi
 
@@ -28,7 +28,8 @@ UKBB_OVERLAYS=$(echo "" $UKBB_SQUASHFS | sed -e "s# # --overlay $UKBB_SQUASHFS_D
 echo "overlays:"
 echo $UKBB_OVERLAYS
 
-CMD=${for i in cat $SUBJECT_LIST; do cp /neurohub/ukbb/imaging/${i} /output/; done \
-    cp participants.tsv dataset_description.json /output/}
+#CMD="for i in `cat $SUBJECT_LIST`; do echo $i; cp /neurohub/ukbb/imaging/${i} /output/; done"
 
-singularity run --overlay UKBB_OVERLAYS -B $OUTPUT_DIR:/output CON_IMG $CMD
+singularity run $UKBB_OVERLAYS -B $OUTPUT_DIR:/output \
+ -B /home/nikhil/scratch/ukbb_processing/ukbm/fmriprep:/fmriprep \
+ $CON_IMG /fmriprep/scripts/copy_ukb_data.sh /fmriprep/metadata/$SUBJECT_LIST
