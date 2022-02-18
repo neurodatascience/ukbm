@@ -9,7 +9,7 @@
 ## Known issues
 - BIDS sql indexing: fmriprep gets stuck while processing even a single subject when squashFS is used as an overlay. Current guess is that it tries to index all ~40k subjects from the participants.tsv which takes for ever.
   - Workaround: copy UKB subsets in scratch and mount that on singularity
-- fmriprep 20.2.7 crashes with this [error(https://neurostars.org/t/error-with-select-tpl-workflow-step-in-fmriprep-20-2-6/20647)
+- fmriprep 20.2.7 crashes with this [error](https://github.com/nipreps/fmriprep/issues/2683). Error goes away if you remove --resource-monitor flag from CLI. 
 
 ## Organization
 - Metadata: contains list of subjects for various tests and runs. 
