@@ -16,14 +16,22 @@ SUBJECT_LIST=$3
 CON_IMG=/project/rpp-aevans-ab/neurohub/ukbb/example_singularity.sif
 UKBB_SQUASHFS_DIR=/project/6008063/neurohub/ukbb/imaging
 
-# SquashFS list
-UKBB_SQUASHFS="
- ${SQUASHFS}
- neurohub_ukbb_participants.squashfs
- neurohub_ukbb_t1_ses2_0_jsonpatch.squashfs
- "
+#SquashFS list
+if [ ${SQUASHFS} == "anat" ]; then
+  echo "Using only anat data with all sessions"
+  UKBB_SQUASHFS="
+   neurohub_ukbb_t1_ses2_0_bids.squashfs
+   neurohub_ukbb_t1_ses3_0_bids.squashfs
+   neurohub_ukbb_participants.squashfs
+   neurohub_ukbb_t1_ses2_0_jsonpatch.squashfs
+   "
 
-# Append all the squashFS files (we need participants and patches to maintain BIDS validation)
+else
+  echo "Using anat and func scans with all sessions"
+  # TODO
+
+fi
+
 UKBB_OVERLAYS=$(echo "" $UKBB_SQUASHFS | sed -e "s# # --overlay $UKBB_SQUASHFS_DIR/#g")
 echo "overlays:"
 echo $UKBB_OVERLAYS
