@@ -11,7 +11,7 @@ fi
 WD_DIR=$1
 SUB_ID=$2
 
-BIDS_DIR="/scratch/nikhil/ukbb_processing/fmriprep/test_BIDS_DIR"
+BIDS_DIR="/scratch/nikhil/ukbb_processing/fmriprep/BIDS_DIR"
 #CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_v20.2.0.simg"
 CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_20.2.7.sif"
 DERIVS_DIR=${WD_DIR}/output
@@ -55,12 +55,13 @@ SINGULARITY_CMD="singularity run \
  ${CON_IMG}"
 
 # Remove IsRunning files from FreeSurfer
-# find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
+find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
 
 # Compose the command line
 cmd="${SINGULARITY_CMD} /data_dir /output participant --participant-label $SUB_ID \
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
+--bids-database-dir /work/20220219-172409_c6d3213f-8689-4847-b597-5f2a96736ce0/bids_db \
 --skip_bids_validation \
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
 --return-all-components --anat-only -v \
