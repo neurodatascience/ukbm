@@ -3,16 +3,17 @@
 # Author: nikhil153
 # Last update: 16 Feb 2022
 
-if [ "$#" -ne 2 ]; then
-  echo "Please provide path to the working_dir and subject ID (i.e. subdir inside BIDS_root)"
+if [ "$#" -ne 3 ]; then
+  echo "Please provide paths to the bids_dir, working_dir and subject ID (i.e. subdir inside BIDS_DIR)"
   exit 1
 fi
 
-WD_DIR=$1
-SUB_ID=$2
+BIDS_DIR=$1
+WD_DIR=$2
+SUB_ID=$3
 
-BIDS_DIR="/scratch/nikhil/ukbb_processing/fmriprep/BIDS_DIR"
-#CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_v20.2.0.simg"
+#BIDS_DIR="/scratch/nikhil/ukbb_processing/fmriprep/BIDS_DIR"
+
 CON_IMG="/home/nikhil/scratch/my_containers/fmriprep_20.2.7.sif"
 DERIVS_DIR=${WD_DIR}/output
 
@@ -61,12 +62,12 @@ find ${LOCAL_FREESURFER_DIR}/sub-$SUB_ID/ -name "*IsRunning*" -type f -delete
 cmd="${SINGULARITY_CMD} /data_dir /output participant --participant-label $SUB_ID \
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
---bids-database-dir /work/20220219-172409_c6d3213f-8689-4847-b597-5f2a96736ce0/bids_db \
 --skip_bids_validation \
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
 --return-all-components --anat-only -v \
 --write-graph  --notrack"
 #--bids-filter-file ${BIDS_FILTER} --anat-only --cifti-out 91k"
+#--bids-database-dir /work/ \
 
 # Setup done, run the command
 #echo Running task ${SLURM_ARRAY_TASK_ID}
