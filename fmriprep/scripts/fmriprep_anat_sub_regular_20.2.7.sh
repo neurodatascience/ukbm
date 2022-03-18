@@ -63,7 +63,7 @@ cmd="${SINGULARITY_CMD} /data_dir /output participant --participant-label $SUB_I
 -w /work --output-spaces MNI152NLin2009cAsym:res-2 anat fsnative fsaverage5 \
 --fs-subjects-dir /fsdir \
 --skip_bids_validation \
---bids-database-dir /work/20220221-200330_10ebc3d4-edd1-4752-8c9f-6f6dc1302c83/bids_db/ \
+--bids-database-dir /work/20220307-205306_5bde9faa-a6da-4842-894a-dd7260903416/bids_db/
 --fs-license-file /home/fmriprep/.freesurfer/license.txt \
 --return-all-components --anat-only -v \
 --write-graph  --notrack"
