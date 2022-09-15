@@ -107,6 +107,8 @@ sbatch --account=ACCOUNT convert_bids.sh [--raw_out DIR] [--source_out DIR] [--d
 The inputs are the same as with `bids.py`. `zipdir` is simply the path to the directory containing the .zip files to be converted to BIDS. The default SBATCH settings use an array of 4 workers; you can increase the number of workers, but using more than 4 workers can cause issues when reading/writing from the same disk spaces. We recommend keeping it at 4 workers and waiting a little longer.  
   
 ### Creating SquashFS images
+Before beginning this step make sure that the permissions for all directories and files in the bids-ified data has proper permissions for reading once the squashfs filesystem is mounted.  For example, do a `chmod -R 555 DIR` on the resulting directory from the previous step.
+
 SquashFS is a read-only filesystem image that is useful for limiting the inode footprint associated with the UKB, and has the side-benefit of making data access significantly faster (see [publication](https://dl.acm.org/doi/10.1145/3311790.3401776) for more information). For a walkthrough for how to use SquashFS combined with Singularity, see the [Neurohub Wiki](https://github.com/neurohub/neurohub_documentation/wiki/5.2.Accessing-Data). We provide a SLURM batch script for creating multiple SquashFS images from a data directory, `slurm/squashdir.sh`:
 ````bash
 sbatch --account=ACCOUNT --array=0-5 squashdir.sh [-d DEPTH] [-f FORMAT] [-n NUMIM] [--dry] directory_to_squash
